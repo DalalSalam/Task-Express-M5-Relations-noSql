@@ -7,6 +7,7 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const errorHandler = require("./middlewares/errorHandler");
 const notFoundHandler = require("./middlewares/notFoundHandler");
+const tagsRoutes = require("./api/tag/tags.route");
 
 dotenv.config();
 connectDb();
@@ -27,7 +28,7 @@ app.use(notFoundHandler);
 
 app.use("/api/authors", authorRoutes);
 app.use("/api/authors/:authorId/posts", postRoutes);
-
+app.use("/api/tags", tagsRoutes);
 app.listen(8000, () => {
   console.log("The application is running on localhost:8000");
 });
