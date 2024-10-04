@@ -1,4 +1,5 @@
-const Post = require('../../models/Post');
+const Post = require("../../models/Post");
+const Author = require("../../models/Author");
 
 exports.fetchPost = async (postId, next) => {
   try {
@@ -9,9 +10,20 @@ exports.fetchPost = async (postId, next) => {
   }
 };
 
-exports.postsCreate = async (req, res) => {
+exports.postsCreate = async (req, res, next) => {
   try {
+    const { authorId } = req.params; // Extract authorId from route parameters
+    req.body.author = authorId;
+
     const newPost = await Post.create(req.body);
+
+    const author = await Author.findById(authorId);
+    if (!author) {
+      return res.status(404).json({ message: "Author not found" });
+    }
+    author.posts.push(newPost._id);
+    await author.save();
+
     res.status(201).json(newPost);
   } catch (error) {
     next(error);
@@ -36,9 +48,9 @@ exports.postsUpdate = async (req, res) => {
   }
 };
 
-exports.postsGet = async (req, res) => {
+exports.postsGet = async (req, res, next) => {
   try {
-    const posts = await Post.find();
+    const posts = await Post.find().populate("author");
     res.json(posts);
   } catch (error) {
     next(error);
